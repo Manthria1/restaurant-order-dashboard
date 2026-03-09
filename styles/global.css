@@ -1,0 +1,86 @@
+:root{
+  --bg:#f7f7f8;
+  --card:#ffffff;
+  --muted:#666;
+  --accent:#2b7a78;
+}
+html,body,#__next{height:100%;}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:var(--bg);color:#111}
+
+.container{max-width:1200px;margin:18px auto;padding:0}
+
+/* Layout */
+.app{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:20px;
+  min-height:calc(100vh - 36px);
+}
+
+.sidebar{
+  background:var(--card);
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 6px 20px rgba(15,15,15,0.04);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.brand-row{display:flex;align-items:center;gap:12px}
+.side-logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#145d5b);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+.nav{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.nav a{padding:12px;border-radius:8px;color:#333;text-decoration:none;display:flex;align-items:center;gap:10px}
+.nav a.active{background:#e94c3d;color:white}
+.nav a .icon{width:18px;height:18px;border-radius:4px;background:#f1f1f1}
+.sidebar-footer{font-size:13px;color:var(--muted);margin-top:18px}
+
+/* Main */
+.main{padding:24px}
+.page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.page-title{font-size:20px;font-weight:700}
+.controls{display:flex;gap:12px;align-items:center}
+.btn{padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #eee}
+
+.stats-cards{display:flex;gap:12px;margin-bottom:18px}
+.stat-card{flex:1;background:linear-gradient(180deg,#fff,#fafafa);padding:16px;border-radius:10px;box-shadow:0 6px 20px rgba(15,15,15,0.04);display:flex;flex-direction:column;gap:8px}
+.stat-card .label{font-size:12px;color:var(--muted)}
+.stat-card .value{font-size:22px;font-weight:800}
+
+.content{display:flex;gap:16px}
+.content-left{flex:1;background:var(--card);padding:20px;border-radius:12px;box-shadow:0 6px 20px rgba(15,15,15,0.03)}
+.content-right{width:340px;display:flex;flex-direction:column;gap:12px}
+
+.filters{display:flex;gap:8px;margin-bottom:12px}
+.filter-btn{padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #eee;cursor:pointer}
+.filter-btn.active{background:#ff6b35;color:#fff;border-color:#ff6b35}
+
+.placeholder{height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted)}
+.placeholder .icon{width:72px;height:72px;border-radius:10px;background:#f5f7f7;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+
+.order-item-list{display:flex;flex-direction:column;gap:12px}
+.order-card{background:#fff;border:1px solid #e1e5e9;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.order-status .status-badge{padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600}
+.status-badge.new{background:#fff3cd;color:#856404}
+.status-badge.preparing{background:#fff3cd;color:#856404}
+.status-badge.ready{background:#d1ecf1;color:#0c5460}
+.order-time{font-size:14px;color:#666}
+.order-details{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.customer-info{display:flex;flex-direction:column}
+.customer-name{font-weight:700;font-size:16px}
+.customer-phone{font-size:14px;color:#666}
+.order-items{display:flex;flex-direction:column;gap:4px}
+.item-line{display:flex;justify-content:space-between;font-size:14px}
+.order-total{display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #eee;padding-top:8px;margin-top:8px}
+.special-instructions{font-size:14px;color:#666;margin-top:8px;padding:8px;background:#f9f9f9;border-radius:4px}
+.order-actions{margin-top:12px}
+.action-btn{padding:8px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer}
+.action-btn.primary{background:#ff6b35;color:#fff}
+.action-btn.done{background:#6c757d;color:#fff}
+
+.history-panel{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 20px rgba(15,15,15,0.03)}
+
+.muted{color:var(--muted)}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .content-right{width:100%}
+}
