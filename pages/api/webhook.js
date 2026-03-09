@@ -77,7 +77,7 @@ export default async function handler(req, res) {
 
   // push into store (keep recent 50)
   await store.addOrder(order);
-  const currentOrders = await store.orders;
+  const currentOrders = await store.getOrders();
 
   // notify SSE clients
   const msg = { type: 'order', order };
