@@ -1,6 +1,6 @@
 import store from '../../lib/store';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
