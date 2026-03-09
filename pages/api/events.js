@@ -11,7 +11,8 @@ export default function handler(req, res) {
   res.write(': connected\n\n');
 
   // send current last-10 orders snapshot immediately
-  const snapshot = { type: 'snapshot', orders: store.orders.slice().reverse() };
+  const currentOrders = await store.orders;
+  const snapshot = { type: 'snapshot', orders: currentOrders.slice().reverse() };
   res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
 
   // register client

@@ -76,8 +76,8 @@ export default async function handler(req, res) {
   }
 
   // push into store (keep recent 50)
-  store.orders.unshift(order);
-  if (store.orders.length > 50) store.orders.length = 50;
+  await store.addOrder(order);
+  const currentOrders = await store.orders;
 
   // notify SSE clients
   const msg = { type: 'order', order };
@@ -91,7 +91,7 @@ export default async function handler(req, res) {
       // ignore broken clients
     }
   }
-  console.log(`[webhook] broadcast to ${sent} SSE clients; store now has ${store.orders.length} orders`);
+  console.log(`[webhook] broadcast to ${sent} SSE clients; store now has ${currentOrders.length} orders`);
 
   // return parsed order for easier debugging in tests
   res.status(200).json({ ok: true, orderId: order.id, order });
