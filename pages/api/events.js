@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   res.write(': connected\n\n');
 
   // send current last-10 orders snapshot immediately
-  const currentOrders = await store.orders;
+  const currentOrders = await store.getOrders();
   const snapshot = { type: 'snapshot', orders: currentOrders.slice().reverse() };
   res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
 

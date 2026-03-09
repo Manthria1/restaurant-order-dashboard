@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (!updated) return res.status(404).json({ error: 'order not found' });
 
   // broadcast update
-  const currentOrders = await store.orders;
+  const currentOrders = await store.getOrders();
   const order = currentOrders.find(o => o.id === id);
   if (order) {
     const msg = { type: 'update', order };
