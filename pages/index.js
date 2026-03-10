@@ -119,7 +119,7 @@ export default function Home() {
           <div className="page-head">
             <div>
               <div className="page-title">Order Dashboard</div>
-              <div className="muted">{today}</div>
+              <div className="muted" suppressHydrationWarning>{today}</div>
             </div>
             <div className="controls">
               <button id="mute-btn" className="btn" onClick={toggleMute} aria-pressed={muted}>{muted? '🔕' : '🔔'}</button>
