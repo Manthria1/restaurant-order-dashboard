@@ -86,7 +86,11 @@ export default function Home() {
     }
   };
 
-  const today = new Date().toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  const [today, setToday] = useState('');
+
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'}));
+  }, []);
 
   return (
     <div className="container">
