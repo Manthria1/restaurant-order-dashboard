@@ -47,52 +47,59 @@ function buildOrderFromRetell(payload) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
 
-  // optional simple secret check
-  const secret = process.env.WEBHOOK_SECRET;
-  if (secret) {
-    const q = req.query?.secret || req.headers['x-webhook-secret'];
-    if (q !== secret) return res.status(401).json({ error: 'invalid secret' });
-  }
-
-  const payload = req.body || {};
-  console.log('[webhook] received', { path: req.url, headers: req.headers && typeof req.headers === 'object' ? { 'content-type': req.headers['content-type'], 'x-webhook-secret': req.headers['x-webhook-secret'] } : req.headers });
-  console.log('[webhook] body preview:', JSON.stringify(payload).slice(0, 2000));
-
-  // optional agent/flow id check
-  const AGENT_ID = process.env.AGENT_ID;
-  const agentIdInPayload = payload?.call?.agent_id || payload?.agent_id || null;
-  if (AGENT_ID && agentIdInPayload && agentIdInPayload !== AGENT_ID) {
-    return res.status(400).json({ error: 'agent_id mismatch' });
-  }
-
-  const order = buildOrderFromRetell(payload);
-  console.log('[webhook] parsed order:', { id: order.id, customerName: order.customerName, phone: order.phone, total: order.total, itemsCount: (order.items||[]).length });
-
-  // normalize items: ensure array of {name, qty, price}
-  order.items = Array.isArray(order.items) ? order.items : [];
-  // compute total if missing
-  if (!order.total) {
-    order.total = order.items.reduce((s, it) => s + (Number(it.price || 0) * (Number(it.qty) || 1)), 0);
-  }
-
-  // push into store (keep recent 50)
-  await store.addOrder(order);
-  const currentOrders = await store.getOrders();
-
-  // notify SSE clients
-  const msg = { type: 'order', order };
-  const data = `data: ${JSON.stringify(msg)}\n\n`;
-  let sent = 0;
-  for (const client of store.clients.slice()) {
-    try {
-      client.write(data);
-      sent += 1;
-    } catch (e) {
-      // ignore broken clients
+  try {
+    // optional simple secret check
+    const secret = process.env.WEBHOOK_SECRET;
+    if (secret) {
+      const q = req.query?.secret || req.headers['x-webhook-secret'];
+      if (q !== secret) return res.status(401).json({ error: 'invalid secret' });
     }
-  }
-  console.log(`[webhook] broadcast to ${sent} SSE clients; store now has ${currentOrders.length} orders`);
 
-  // return parsed order for easier debugging in tests
-  res.status(200).json({ ok: true, orderId: order.id, order });
+    const payload = req.body || {};
+    console.log('[webhook] received', { path: req.url, headers: req.headers && typeof req.headers === 'object' ? { 'content-type': req.headers['content-type'], 'x-webhook-secret': req.headers['x-webhook-secret'] } : req.headers });
+    console.log('[webhook] body preview:', JSON.stringify(payload).slice(0, 2000));
+
+    // optional agent/flow id check
+    const AGENT_ID = process.env.AGENT_ID;
+    const agentIdInPayload = payload?.call?.agent_id || payload?.agent_id || null;
+    if (AGENT_ID && agentIdInPayload && agentIdInPayload !== AGENT_ID) {
+      return res.status(400).json({ error: 'agent_id mismatch' });
+    }
+
+    const order = buildOrderFromRetell(payload);
+    console.log('[webhook] parsed order:', { id: order.id, customerName: order.customerName, phone: order.phone, total: order.total, itemsCount: (order.items||[]).length });
+
+    // normalize items: ensure array of {name, qty, price}
+    order.items = Array.isArray(order.items) ? order.items : [];
+    // compute total if missing
+    if (!order.total) {
+      order.total = order.items.reduce((s, it) => s + (Number(it.price || 0) * (Number(it.qty) || 1)), 0);
+    }
+
+    // push into store (keep recent 50)
+    console.log('[webhook] about to add order to store');
+    await store.addOrder(order);
+    const currentOrders = await store.getOrders();
+    console.log('[webhook] order added, total orders now:', currentOrders.length);
+
+    // notify SSE clients
+    const msg = { type: 'order', order };
+    const data = `data: ${JSON.stringify(msg)}\n\n`;
+    let sent = 0;
+    for (const client of store.clients.slice()) {
+      try {
+        client.write(data);
+        sent += 1;
+      } catch (e) {
+        // ignore broken clients
+      }
+    }
+    console.log(`[webhook] broadcast to ${sent} SSE clients; store now has ${currentOrders.length} orders`);
+
+    // return parsed order for easier debugging in tests
+    res.status(200).json({ ok: true, orderId: order.id, order });
+  } catch (error) {
+    console.error('[webhook] Error:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
+  }
 }
