@@ -4,13 +4,26 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
   
   const payload = req.body || {};
-  console.log('FULL PAYLOAD:', JSON.stringify(payload, null, 2));
+  console.log('FULL PAYLOAD:', JSON.stringify(payload).slice(0, 500));
 
   try {
-    // Retell structure
-    const call = payload.call || payload;
+    const call = payload.call || {};
     const analysis = call.call_analysis || {};
     const custom = analysis.custom_analysis_data || {};
+
+    // Parse items (comes as JSON string from Retell)
+    let items = [];
+    if (custom.order_items) {
+      try {
+        items = typeof custom.order_items === 'string' 
+          ? JSON.parse(custom.order_items) 
+          : custom.order_items;
+      } catch(e) { items = []; }
+    }
+
+    // Parse total (comes as "$11.95" string)
+    const totalRaw = custom.total_price || '0';
+    const total = parseFloat(String(totalRaw).replace(/[^0-9.]/g, '')) || 0;
 
     const order = {
       id: Date.now().toString(),
@@ -18,8 +31,8 @@ export default async function handler(req, res) {
       status: 'new',
       customerName: custom.customer_name || 'Guest',
       phone: custom.customer_phone || call.from_number || 'unknown',
-      items: parseItems(custom.order_items),
-      total: Number(custom.total_price || 0),
+      items,
+      total,
       pickupTime: custom.pickup_time || 'ASAP',
       raw: payload
     };
@@ -31,13 +44,4 @@ export default async function handler(req, res) {
     console.error(e);
     res.status(500).json({ error: e.message });
   }
-}
-
-function parseItems(value) {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  if (typeof value === 'string') {
-    try { return JSON.parse(value); } catch (e) { return [{ item_name: value }]; }
-  }
-  return [];
 }
